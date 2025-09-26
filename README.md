@@ -13,3 +13,13 @@ A modern web-based examination platform designed to make online assessments seam
     Analytics Dashboard → Performance insights and result tracking.
 
     Admin Controls → Add/manage exams, questions, and user roles.
+Install it¶
+
+Next, run the Django command-line utilities to create the database tables automatically:
+/ 
+python3 -m venv .examenv
+source .examenv/bin/activate
+pip install django
+cd ExamAid
+python manage.py migrate
+

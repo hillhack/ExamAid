@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Take Exam</h2>
+
+<form id="exam-form" method="post">
+    {% csrf_token %}
+    <div id="questions-container">
+        {% if questions %}
+            {% for q in questions %}
+            <div class="question">
+                <p><strong>{{ forloop.counter }}. {{ q.question_text }}</strong></p>
+                <label><input type="radio" name="{{ q.id }}" value="1"> {{ q.option1 }}</label><br>
+                <label><input type="radio" name="{{ q.id }}" value="2"> {{ q.option2 }}</label><br>
+                <label><input type="radio" name="{{ q.id }}" value="3"> {{ q.option3 }}</label><br>
+                <label><input type="radio" name="{{ q.id }}" value="4"> {{ q.option4 }}</label><br>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p>No questions available.</p>
+        {% endif %}
+    </div>
+    <button type="submit">Submit</button>
+</form>
+
+<div id="result" style="margin-top: 20px; font-weight: bold;"></div>
+
+<script>
+document.getElementById("exam-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const answers = {};
+    document.querySelectorAll("input[type=radio]:checked").forEach(r => {
+        answers[r.name] = r.value;
+    });
+
+    try {
+        const response = await fetch("/exams/submit/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}"
+            },
+            body: JSON.stringify({ answers })
+        });
+        const result = await response.json();
+        document.getElementById("result").innerText = `Score: ${result.score}/${result.total}`;
+    } catch (err) {
+        document.getElementById("result").innerText = "Error submitting answers.";
+        console.error("Error:", err);
+    }
+});
+</script>
+{% endblock %}
